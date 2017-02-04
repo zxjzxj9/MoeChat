@@ -22,8 +22,8 @@ Following is a brief description of the status and status_code
 |Status    |Meaning                     |Accompying status_code    |Notes                            |
 |----------|----------------------------|--------------------------|---------------------------------|
 |"q"       |Querying for information    |Any is OK                 |"info" Object for query data     |
-|"r"       |Response to query           |10 - 40                   |"info" Object for response data  |
-|"e"       |Some error happened         |50 - 70                   |"info" Object for error info     |
+|"r"       |Response to query           |10 - 50                   |"info" Object for response data  |
+|"e"       |Some error happened         |60 - 70                   |"info" Object for error info     |
 |"m"       |Transferring message        |80 - 90                   |"info" Object for message detail |
 
 #### Table 2 The status code summary
@@ -33,9 +33,9 @@ Following is a brief description of the status and status_code
 |2x              |Login fail             |Access denied, detailed in "info".     |
 |3x              |Query success          |Response given in "info"               |
 |4x              |Query fail             |No response, reason given in "info"    |
-|5x              |Server fail            |Server errror, reason given in "info"  |
-|6x              |Message fail           |Cannot send message, details in "info" |
-|7x              |Reserved               |                                       |
+|5x              |Message success        |Message successfully sent              |
+|6x              |Server fail            |Server errror, reason given in "info"  |
+|7x              |Message fail           |Cannot send message, details in "info" |
 |8x              |Message to one person  |Send message to someone                |
 |9x              |Boardcasting message   |Send message to everyone               |
 

@@ -12,13 +12,13 @@ func main() {
 	var addr = flag.String("ip", "0.0.0.0", "Moecat Server Binding Ip Address")
 	var port = flag.Int("port", 3541, "Moecat Server Binding Port")
 	var lserv = flag.Bool("run", false, "Start the server")
-	var ldbinit = flag.Bool("dbinit", false, "Initialize the database")
+	var ldbinit = flag.Bool("initdb", false, "Initialize the database")
 
 	flag.Parse()
 
 	if *ldbinit {
 		fmt.Printf("Initializing database...")
-		dbinit()
+		initdb()
 		os.Exit(0)
 	}
 

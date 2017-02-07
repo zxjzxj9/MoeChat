@@ -24,5 +24,5 @@ func initdb() {
 		os.Exit(-1)
 	}
 
-
+    fmt.Println(res)
 }

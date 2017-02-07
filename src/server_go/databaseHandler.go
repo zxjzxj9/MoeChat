@@ -57,5 +57,4 @@ func initdb() {
                          "  online INTEGER,   "
                          "  last_check TEXT );"
                          )
-    fmt.Println(res)
 }

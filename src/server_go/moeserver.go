@@ -17,7 +17,7 @@ func main() {
 	flag.Parse()
 
 	if *ldbinit {
-		fmt.Printf("Initializing database...")
+		fmt.Println("Initializing database...")
 		initdb()
 		os.Exit(0)
 	}

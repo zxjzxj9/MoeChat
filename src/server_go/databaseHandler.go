@@ -62,6 +62,8 @@ func initdb() {
                          "  passwd INTEGER,   " +
                          "  login_time TEXT,  " +
                          "  online INTEGER,   " +
+                         "  sid TEXT,         " +
+                         "  auxport INTEGER,  " +
                          "  last_check TEXT);" )
 
     if err != nil {

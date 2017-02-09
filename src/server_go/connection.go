@@ -2,29 +2,53 @@ package main
 
 import "net"
 import "fmt"
+<<<<<<< HEAD
+import "log"
+import "bytes"
 
+const (
+    MAX_BUFF_LEN = 1024
+)
+
+// Define the message format
+type message struct {
+    src string
+    dest string
+    err error
+}
 
 // Mainloop tfor tcp connection
-func runServer(addr string, port int) err error {
+func runServer(addr string, port int) error {
 	lstn, err := net.Listen("tcp", fmt.Sprintf("%s:%d", addr, port))
 	if err != nil {
 		return err
 	}
 	defer lstn.Close()
 
+    m := make(chan message)
+
 	for {
 		conn, err :=  lstn.Accept()
 		if err != nil {
 			return err
 		}
+        go comm(conn, m)
 		defer conn.Close()
-
-		err = comm(conn, addr)
 	}
+
+    return nil
 }
 
 // communicate with the client, main logic
-func comm(conn Conn) {
+func comm(conn net.Conn, m chan message) {
+    // First send connection message
+    // init the connection
+    buff := make([]buff, MAX_BUFF_LEN)
+    var total
 
 }
 
+func logger(m chan message) {
+    // Handle the error during server run
+    log.Println("Init server logger")
+}

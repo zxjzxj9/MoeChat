@@ -39,3 +39,6 @@ Following is a brief description of the status and status_code
 |8x              |Message to one person  |Send message to someone                |
 |9x              |Boardcasting message   |Send message to everyone               |
 
+### 1.2 Connections between server and clients
+#### 1.2.1 Client login behaviors
+Client will query server with login informations, { "status" : "q" , "info" : {"user": username, "password": password}. Where user and passord are the client user and password strored in the server side database.

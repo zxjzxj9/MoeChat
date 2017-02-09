@@ -2,7 +2,6 @@ package main
 
 import "net"
 import "fmt"
-<<<<<<< HEAD
 import "log"
 import "bytes"
 

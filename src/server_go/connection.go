@@ -4,6 +4,8 @@ import "net"
 import "fmt"
 import "log"
 import "bytes"
+import "ioutil"
+import "encoding/json"
 
 const (
     MAX_BUFF_LEN = 1024
@@ -42,8 +44,20 @@ func runServer(addr string, port int) error {
 func comm(conn net.Conn, m chan message) {
     // First send connection message
     // init the connection
-    buff := make([]buff, MAX_BUFF_LEN)
-    var total
+	recvbyte, err := ioutil.ReadAll(conn)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	defer conn.Close()
+
+	var data map[string]
+	err = Unmarshal(recvbyte, data)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 
 }
 

@@ -58,6 +58,16 @@ func comm(conn net.Conn, m chan message) {
 		log.Fatal(err)
 		return
 	}
+    // Process the data according to the protocal
+	switch data["status"] {
+		case "q":
+			// do query hadling, login the client
+		case "m":
+			// sending messages
+		default:
+			// return error, and exit
+
+	}
 
 }
 

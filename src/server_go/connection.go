@@ -62,6 +62,15 @@ func comm(conn net.Conn, m chan message) {
 	switch data["status"] {
 		case "q":
 			// do query hadling, login the client
+			msg := data.(map[string])
+			user := msg["user"]
+			passwd := msg["passwd"]
+			// Call the database function to validater user passwd
+			if validate(user, passwd) {
+				// Sending the secondary port of server
+			} else {
+				// Fail to login
+			}
 		case "m":
 			// sending messages
 		default:
@@ -75,3 +84,4 @@ func logger(m chan message) {
     // Handle the error during server run
     log.Println("Init server logger")
 }
+

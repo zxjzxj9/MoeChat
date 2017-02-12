@@ -72,3 +72,8 @@ func initdb() {
 
     fmt.Println("Successfully create table user")
 }
+
+// Validate the user and passwd
+func validate(user, passwd string) {
+
+}

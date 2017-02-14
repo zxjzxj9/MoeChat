@@ -9,6 +9,9 @@ import "encoding/json"
 
 const (
     MAX_BUFF_LEN = 1024
+	SECONDARY_PORT = 7346
+    letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	sessLen = 24 // 24 digits session length
 )
 
 // Define the message format
@@ -68,6 +71,15 @@ func comm(conn net.Conn, m chan message) {
 			// Call the database function to validater user passwd
 			if validate(user, passwd) {
 				// Sending the secondary port of server
+				m := make(map[string], interface{})
+				m["status"] = "r"
+				infomap := make(map[string], string)
+				m["info"] = infomap
+				//Listen to secondary, for ending informations
+				infomap["port"] := SECONDARY_PORT
+                infomap["session"] := randSeq(sessLen)
+				// UnMarshal the map
+
 			} else {
 				// Fail to login
 			}
@@ -85,3 +97,11 @@ func logger(m chan message) {
     log.Println("Init server logger")
 }
 
+// Function for generate session key
+func randSeq(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}

@@ -3,14 +3,16 @@ package main
 import "net"
 import "fmt"
 import "log"
-import "bytes"
-import "ioutil"
+//import "bytes"
+import "strconv"
+import "math/rand"
+import "io/ioutil"
 import "encoding/json"
 
 const (
     MAX_BUFF_LEN = 1024
 	SECONDARY_PORT = 7346
-    letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+    letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	sessLen = 24 // 24 digits session length
 )
 
@@ -55,8 +57,8 @@ func comm(conn net.Conn, m chan message) {
 
 	defer conn.Close()
 
-	var data map[string]
-	err = Unmarshal(recvbyte, data)
+	var data map[string]interface{}
+	err = json.Unmarshal(recvbyte, data)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -65,19 +67,19 @@ func comm(conn net.Conn, m chan message) {
 	switch data["status"] {
 		case "q":
 			// do query hadling, login the client
-			msg := data.(map[string])
+			msg := data["info"].(map[string]string)
 			user := msg["user"]
 			passwd := msg["passwd"]
 			// Call the database function to validater user passwd
 			if validate(user, passwd) {
 				// Sending the secondary port of server
-				m := make(map[string], interface{})
+				m := make(map[string]interface{})
 				m["status"] = "r"
-				infomap := make(map[string], string)
+				infomap := make(map[string]string)
 				m["info"] = infomap
 				//Listen to secondary, for ending informations
-				infomap["port"] := SECONDARY_PORT
-                infomap["session"] := randSeq(sessLen)
+				infomap["port"] = strconv.Itoa(SECONDARY_PORT)
+                infomap["session"] = randSeq(sessLen)
 				// UnMarshal the map
 
 			} else {
@@ -99,7 +101,7 @@ func logger(m chan message) {
 
 // Function for generate session key
 func randSeq(n int) string {
-	b := make([]rune, n)
+	b := make([]byte, n)
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
 	}

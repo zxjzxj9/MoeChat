@@ -11,13 +11,13 @@ import "log"
 // Other backends can be included with modification
 
 func initdb() {
+	db, err := sql.Open("sqlite3","./user.db")
 	if err != nil {
 		fmt.Println("Database cannot be opened, exit...")
 		log.Fatal(err)
 		os.Exit(-1)
 	}
 
-	db, err := sql.Open("sqlite3","./user.db")
 	defer db.Close()
 
 	checkTableExists := "SELECT name FROM sqlite_master WHERE type='table' AND name='user';"
@@ -84,8 +84,8 @@ func validate(user, passwd string) bool {
 
 	defer db.Close()
 
-	switch err{
-		case sql.ErrNoRows:
+	switch {
+		case err == sql.ErrNoRows:
 			log.Printf("Incorrect username or password.\n")
 			return false
 		case err != nil:

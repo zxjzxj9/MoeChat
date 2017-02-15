@@ -3,6 +3,7 @@ package main
 import "database/sql"
 import _ "github.com/mattn/go-sqlite3"
 import "os"
+import "time"
 import "bufio"
 import "fmt"
 import "log"
@@ -57,15 +58,15 @@ func initdb() {
             os.Exit(-1)
     }
 
-    _, err =  db.Exec(" CREATE TABLE user  "  +
-                         "( uid INTEGER,      " +
-                         "  uname TEXT,       " +
-                         "  passwd INTEGER,   " +
-                         "  login_time TEXT,  " +
-                         "  online INTEGER,   " +
-                         "  sid TEXT,         " +
-                         "  auxport INTEGER,  " +
-                         "  last_check TEXT);" )
+    _, err =  db.Exec(  " CREATE TABLE user  "  +
+                         "( uid INTEGER,      " + // user id, primary key
+                         "  uname TEXT,       " + // username
+                         "  passwd INTEGER,   " + // password
+                         "  login_time TEXT,  " + // when is user login?
+                         "  online INTEGER,   " + // 0: offline 1: online
+                         "  sid TEXT,         " + // session key (id)
+                         "  auxport INTEGER,  " + // auxalliary port
+                         "  last_check TEXT);" )  // last heartbeat time
 
     if err != nil {
         fmt.Println("Creat table failure!")
@@ -96,4 +97,16 @@ func validate(user, passwd string) bool {
 			return true
 	}
 
+}
+
+// Update user session id for validation
+func activate(user, session string) error {
+    datetime := time.Now().UTC()
+	db, err := sql.Open("sqlite3","./user.db")
+    _, err = db.Exec(" UPDATE user SET sid = ?, login_time = ?, online = 1, last_check = ? WHERE uname = ?;",
+                  session, datetime.Format(time.RFC3339), datetime.Format(time.RFC3339), user)
+    if err != nil {
+        log.Fatal(err)
+    }
+    return err
 }

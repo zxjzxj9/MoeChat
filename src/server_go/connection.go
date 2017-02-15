@@ -49,48 +49,66 @@ func runServer(addr string, port int) error {
 func comm(conn net.Conn, m chan message) {
     // First send connection message
     // init the connection
-	recvbyte, err := ioutil.ReadAll(conn)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
+    for {
+	    recvbyte, err := ioutil.ReadAll(conn)
+	    if err != nil {
+		    log.Fatal(err)
+		    return
+	    }
 
-	defer conn.Close()
+	    defer conn.Close()
 
-	var data map[string]interface{}
-	err = json.Unmarshal(recvbyte, data)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-    // Process the data according to the protocal
-	switch data["status"] {
-		case "q":
-			// do query hadling, login the client
-			msg := data["info"].(map[string]string)
-			user := msg["user"]
-			passwd := msg["passwd"]
-			// Call the database function to validater user passwd
-			if validate(user, passwd) {
-				// Sending the secondary port of server
-				m := make(map[string]interface{})
-				m["status"] = "r"
-				infomap := make(map[string]string)
-				m["info"] = infomap
-				//Listen to secondary, for ending informations
-				infomap["port"] = strconv.Itoa(SECONDARY_PORT)
-                infomap["session"] = randSeq(sessLen)
-				// UnMarshal the map
-
-			} else {
-				// Fail to login
-			}
-		case "m":
+	    var data map[string]interface{}
+	    err = json.Unmarshal(recvbyte, data)
+	    if err != nil {
+		    log.Fatal(err)
+		    return
+	    }
+        // Process the data according to the protocal
+	    switch data["status"] {
+		    case "q":
+			    // do query hadling, login the client
+                msg := data["info"].(map[string]string)
+                user := msg["user"]
+		        passwd := msg["passwd"]
+		        // Call the database function to validater user passwd
+		        if validate(user, passwd) {
+                    // Sending the secondary port of server
+		            m := make(map[string]interface{})
+		            m["status"] = "r"
+                    m["status_code"] = 30
+		            infomap := make(map[string]string)
+	                m["info"] = infomap
+		            //Listen to secondary, for ending informations
+                    infomap["port"] = strconv.Itoa(SECONDARY_PORT)
+                    infomap["session"] = randSeq(sessLen)
+	                // Marshal the map
+                    reply, err := json.Marshal(m)
+                    // Register and activate the user session
+                    if err = activate(user, infomap["session"]); err != nil {
+                        return
+                    }
+                    if err != nil {
+                        log.Fatal(err)
+                        return
+                    }
+                    _, err = conn.Write(reply)
+                    if err != nil {
+                        log.Fatal(err)
+                        return
+                    }
+		        } else {
+				    // Fail to login
+	            }
+            case "m":
 			// sending messages
-		default:
+            default:
 			// return error, and exit
+	     }
+    }
+}
 
-	}
+func comm2(conn net.Conn, m chan message) {
 
 }
 

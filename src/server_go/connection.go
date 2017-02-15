@@ -69,6 +69,12 @@ func comm(conn net.Conn, m chan message) {
 		    case "q":
 			    // do query hadling, login the client
                 msg := data["info"].(map[string]string)
+
+                switch msg["req"] {
+
+
+                }
+
                 user := msg["user"]
 		        passwd := msg["passwd"]
 		        // Call the database function to validater user passwd
@@ -126,8 +132,8 @@ func cleaner(m chan message) {
     // Handle the error during server run
 //    log.Println("Init server logger")
 //}
-
 // Function for generate session key
+
 func randSeq(n int) string {
 	b := make([]byte, n)
 	for i := range b {
@@ -135,3 +141,13 @@ func randSeq(n int) string {
 	}
 	return string(b)
 }
+
+func login(user, passwd string) error {
+
+}
+
+func logout(user, passwd string) error {
+
+}
+
+

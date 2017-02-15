@@ -86,6 +86,7 @@ func comm(conn net.Conn, m chan message) {
                     reply, err := json.Marshal(m)
                     // Register and activate the user session
                     if err = activate(user, infomap["session"]); err != nil {
+                        log.Fatal(err)
                         return
                     }
                     if err != nil {
@@ -101,7 +102,8 @@ func comm(conn net.Conn, m chan message) {
 				    // Fail to login
 	            }
             case "m":
-			// sending messages
+			    // sending messages
+                // firstly we will check whether arrivable
             default:
 			// return error, and exit
 	     }
@@ -112,10 +114,18 @@ func comm2(conn net.Conn, m chan message) {
 
 }
 
-func logger(m chan message) {
-    // Handle the error during server run
-    log.Println("Init server logger")
+func cleaner(m chan message) {
+    // Periodically check un arrivable message and sweep them out in the queue
+    for {
+
+    }
 }
+
+//@deprecated, each function should log error itself
+//func logger(m chan message) {
+    // Handle the error during server run
+//    log.Println("Init server logger")
+//}
 
 // Function for generate session key
 func randSeq(n int) string {

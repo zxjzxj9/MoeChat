@@ -14,6 +14,7 @@ const (
 	SECONDARY_PORT = 7346
     letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	sessLen = 24 // 24 digits session length
+    heartbeat = 600 // set heartbeat time, default 600
 )
 
 // Define the message format
@@ -35,6 +36,7 @@ func runServer(addr string, port int) error {
 
 	for {
 		conn, err :=  lstn.Accept()
+        log.Println("Incoming connection from: ", conn.RemoteAddr.IP, conn.RemoteAddr.Port)
 		if err != nil {
 			return err
 		}
@@ -71,39 +73,13 @@ func comm(conn net.Conn, m chan message) {
                 msg := data["info"].(map[string]string)
 
                 switch msg["req"] {
-
-
+                    case "login":
+                        if login() != nil {
+                            // returning messages
+                            retm =  
+                        }
                 }
 
-                user := msg["user"]
-		        passwd := msg["passwd"]
-		        // Call the database function to validater user passwd
-		        if validate(user, passwd) {
-                    // Sending the secondary port of server
-		            m := make(map[string]interface{})
-		            m["status"] = "r"
-                    m["status_code"] = 30
-		            infomap := make(map[string]string)
-	                m["info"] = infomap
-		            //Listen to secondary, for ending informations
-                    infomap["port"] = strconv.Itoa(SECONDARY_PORT)
-                    infomap["session"] = randSeq(sessLen)
-	                // Marshal the map
-                    reply, err := json.Marshal(m)
-                    // Register and activate the user session
-                    if err = activate(user, infomap["session"]); err != nil {
-                        log.Fatal(err)
-                        return
-                    }
-                    if err != nil {
-                        log.Fatal(err)
-                        return
-                    }
-                    _, err = conn.Write(reply)
-                    if err != nil {
-                        log.Fatal(err)
-                        return
-                    }
 		        } else {
 				    // Fail to login
 	            }
@@ -142,12 +118,44 @@ func randSeq(n int) string {
 	return string(b)
 }
 
-func login(user, passwd string) error {
-
+func login(msg map[string] string, conn net.Conn) error {
+    user := msg["user"]
+    passwd := msg["passwd"]
+    // Call the database function to validater user passwd
+    if validate(user, passwd) {
+        // Sending the secondary port of server
+        m := make(map[string]interface{})
+        m["status"] = "r"
+        m["status_code"] = 30
+        infomap := make(map[string]string)
+        m["info"] = infomap
+        //Listen to secondary, for ending informations
+        infomap["port"] = strconv.Itoa(SECONDARY_PORT)
+        infomap["session"] = randSeq(sessLen)
+        // Marshal the map
+        reply, err := json.Marshal(m)
+        // Register and activate the user session
+        if err = activate(user, infomap["session"]); err != nil {
+            log.Fatal(err)
+            return err
+        }
+        if err != nil {
+            log.Fatal(err)
+            return err
+        }
+        _, err = conn.Write(reply)
+        if err != nil {
+            log.Fatal(err)
+            return err
+        }
+        return nil
+    } else {
+        ret := errors.New("Cannot validate user!")
+        log.Fatal(ret)
+        return ret
+    }
 }
 
-func logout(user, passwd string) error {
-
+func logout(msg map[string] string, conn net.Conn ) error {
 }
-
 

@@ -105,8 +105,25 @@ func activate(user, session string) error {
 	db, err := sql.Open("sqlite3","./user.db")
     _, err = db.Exec(" UPDATE user SET sid = ?, login_time = ?, online = 1, last_check = ? WHERE uname = ?;",
                   session, datetime.Format(time.RFC3339), datetime.Format(time.RFC3339), user)
+    defer db.Close()
+
     if err != nil {
         log.Fatal(err)
     }
     return err
+}
+
+// Check whether the client is still online
+func checkAlive(user, sessionId string) bool {
+    datetime := time.Now().UTC()
+	db, err := sql.Open("sqlite3","./user.db")
+    err = db.QueryRow(" SELECT uid FROM user " +
+                      " WHERE uname = ? "      +
+                      " AND   sid = ?   ", user, sessionId)
+    defer db.Close()
+    if err != nil {
+        log.Fatal(err)
+        return false
+    }
+    return true
 }

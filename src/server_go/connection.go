@@ -76,7 +76,17 @@ func comm(conn net.Conn, m chan message) {
                     case "login":
                         if login() != nil {
                             // returning messages
-                            retm =  
+                            m := make(map[string]interface{})
+							m["status"] = "q"
+							m["status_code"] = 20
+							m["info"] = make(map[string]string)
+							m["info"]["error"] = "Invalid username or password"
+							reply, err := json.Marshal(m)
+							_, err = conn.Write(reply)
+							if err != nil {
+								log.Fatal(err)
+							}
+							return
                         }
                 }
 

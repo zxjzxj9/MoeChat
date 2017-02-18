@@ -127,3 +127,7 @@ func checkAlive(user, sessionId string) bool {
     }
     return true
 }
+
+func getUsers() {
+
+}

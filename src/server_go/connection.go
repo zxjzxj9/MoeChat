@@ -88,6 +88,10 @@ func comm(conn net.Conn, m chan message) {
 							}
 							return
                         }
+					// Query online users
+					case "users":
+						var users string[]
+						users, err = getUsers()
                 }
 
 		        } else {

@@ -129,5 +129,5 @@ func checkAlive(user, sessionId string) bool {
 }
 
 func getUsers() {
-
+	err = db.Query
 }

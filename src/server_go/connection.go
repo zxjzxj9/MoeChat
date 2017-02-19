@@ -77,7 +77,7 @@ func comm(conn net.Conn, m chan message) {
                         if login() != nil {
                             // returning messages
                             m := make(map[string]interface{})
-							m["status"] = "q"
+							m["status"] = "r"
 							m["status_code"] = 20
 							m["info"] = make(map[string]string)
 							m["info"]["error"] = "Invalid username or password"
@@ -88,10 +88,19 @@ func comm(conn net.Conn, m chan message) {
 							}
 							return
                         }
-					// Query online users
+					// Query online users, should firstly verify sessions
 					case "users":
 						var users string[]
+						if sessionId, hasSessionId := dict["sessionId"];  {
+							
+
+						}
+						
 						users, err = getUsers()
+						m := make(map[string]interface{})
+						m["status"] = "r"
+						m["status_code"] = 30
+						
                 }
 
 		        } else {

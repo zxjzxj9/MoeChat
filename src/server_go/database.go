@@ -128,6 +128,23 @@ func checkAlive(user, sessionId string) bool {
     return true
 }
 
-func getUsers() {
-	err = db.Query
+func getUsers() []string {
+	rows, err := db.Query(" SELECT uname FROM user; ")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer rows.Close()
+    ret := make([]string)
+    for rows.Next() {
+        var u string
+        if err := rows.Scan(&u); err != nil {
+            log.Fatal(err)
+        }
+        ret = append(ret, u)
+    }
+
+    if err = rows.Err(); err != nil {
+            log.Fatal(err)
+    }
+    return ret
 }

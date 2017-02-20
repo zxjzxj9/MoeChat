@@ -89,9 +89,12 @@ func comm(conn net.Conn, m chan message) {
 							return
                         }
 					// Query online users, should firstly verify sessions
+                    // Following all operations should carry a session id
 					case "users":
 						var users string[]
-						if sessionId, hasSessionId := dict["sessionId"];  {
+						if sessionId, hasSessionId := msg["sessionId"];
+                           uname
+                           {
 							
 
 						}

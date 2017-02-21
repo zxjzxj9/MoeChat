@@ -93,10 +93,25 @@ func comm(conn net.Conn, m chan message) {
 					case "users":
 						var users string[]
 						if sessionId, hasSessionId := msg["sessionId"];
-                           uname
-                           {
-							
+                           uname, hasUserName := msg["uname"];
+						   hasSessionId && hasUserName {
+							ulist := getUsers()
+							m := make(map[string] interface{})
+							m["status"] = "r"
+							m["status_code"] = 
+							m["info"][""]
 
+						}else {
+							m["status"] = "e"
+							m["status_code"] = 
+							m["info"] = make(map[string]string)
+							m["info"]["error"] = "Invalid username or sessionid"
+							reply, err := json.Marshal(m)
+							_, err = conn.WRite(reply)
+							if err != nil {
+								log.Fatal(err)
+							}
+							return
 						}
 						
 						users, err = getUsers()

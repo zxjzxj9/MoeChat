@@ -7,4 +7,4 @@ go:
 #   - export GOPATH=`pwd`
 #   - go get github.com/mattn/go-sqlite3
 
-script: build.sh 
+script: ./build.sh 

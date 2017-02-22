@@ -91,19 +91,23 @@ func comm(conn net.Conn, m chan message) {
 					// Query online users, should firstly verify sessions
                     // Following all operations should carry a session id
 					case "users":
-						var users string[]
 						if sessionId, hasSessionId := msg["sessionId"];
                            uname, hasUserName := msg["uname"];
 						   hasSessionId && hasUserName {
 							ulist := getUsers()
 							m := make(map[string] interface{})
 							m["status"] = "r"
-							m["status_code"] = 
-							m["info"][""]
-
-						}else {
+							m["status_code"] = 30
+							m["info"] = make(map[string]string)
+							m["info"]["ulist"] = ulist
+							reply, err := json.Marshal(m)
+							_, err = conn.WRite(reply)
+							if err != nil {
+								log.Fatal(err)
+							}
+						} else {
 							m["status"] = "e"
-							m["status_code"] = 
+							m["status_code"] = 40
 							m["info"] = make(map[string]string)
 							m["info"]["error"] = "Invalid username or sessionid"
 							reply, err := json.Marshal(m)
@@ -113,12 +117,23 @@ func comm(conn net.Conn, m chan message) {
 							}
 							return
 						}
-						
-						users, err = getUsers()
-						m := make(map[string]interface{})
-						m["status"] = "r"
-						m["status_code"] = 30
-						
+					case "message":
+						if sessionId, hasSessionId := msg["sessionId"];
+                           uname, hasUserName := msg["uname"];
+						   hasSessionId && hasUserName {
+
+						} else {
+
+						}
+					case "logout":
+						if sessionId, hasSessionId := msg["sessionId"];
+                           uname, hasUserName := msg["uname"];
+						   hasSessionId && hasUserName {
+
+						} else {
+
+						}
+
                 }
 
 		        } else {

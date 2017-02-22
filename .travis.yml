@@ -7,5 +7,4 @@ go:
 #   - export GOPATH=`pwd`
 #   - go get github.com/mattn/go-sqlite3
 
-go_import_path: github.com/zxjzxj9/MoeChat/src/server_go
 script: ./build.sh 

@@ -4,3 +4,5 @@ GOPATH=$(shell pwd)
 
 moeserver:
 	go build ${Src}
+test:
+	go test .

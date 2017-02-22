@@ -117,24 +117,32 @@ func activate(user, session string) error {
 func checkAlive(user, sessionId string) bool {
     datetime := time.Now().UTC()
 	db, err := sql.Open("sqlite3","./user.db")
-    err = db.QueryRow(" SELECT uid FROM user " +
+	var s time.Time
+    err = db.QueryRow(" SELECT last_check FROM user " +
                       " WHERE uname = ? "      +
-                      " AND   sid = ?   ", user, sessionId)
+                      " AND   sid = ?  ; ", user, sessionId).Scan(&s)
     defer db.Close()
     if err != nil {
         log.Fatal(err)
         return false
     }
+
+	// If no reply for more than 10 mins, treat it offline
+	if (datetime.Sub(s))*time.Minute > 10 {
+		return false
+	}
+
     return true
 }
 
 func getUsers() []string {
+	db, err := sql.Open("sqlite3","./user.db")
 	rows, err := db.Query(" SELECT uname FROM user; ")
     if err != nil {
         log.Fatal(err)
     }
     defer rows.Close()
-    ret := make([]string)
+    ret := make([]string,0)
     for rows.Next() {
         var u string
         if err := rows.Scan(&u); err != nil {

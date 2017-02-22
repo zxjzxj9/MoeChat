@@ -5,9 +5,11 @@ import "fmt"
 import "log"
 //import "bytes"
 import "strconv"
+import "errors"
 import "math/rand"
 import "io/ioutil"
 import "encoding/json"
+
 
 const (
     MAX_BUFF_LEN = 1024
@@ -36,7 +38,7 @@ func runServer(addr string, port int) error {
 
 	for {
 		conn, err :=  lstn.Accept()
-        log.Println("Incoming connection from: ", conn.RemoteAddr.IP, conn.RemoteAddr.Port)
+        log.Println("Incoming connection from: ", conn.RemoteAddr())
 		if err != nil {
 			return err
 		}
@@ -48,7 +50,7 @@ func runServer(addr string, port int) error {
 }
 
 // communicate with the client, main logic
-func comm(conn net.Conn, m chan message) {
+func comm(conn net.Conn, msgQueue chan message) {
     // First send connection message
     // init the connection
     for {
@@ -67,20 +69,21 @@ func comm(conn net.Conn, m chan message) {
 		    return
 	    }
         // Process the data according to the protocal
-	    switch data["status"] {
+	    switch data["status"].(string) {
 		    case "q":
 			    // do query hadling, login the client
-                msg := data["info"].(map[string]string)
+				msg := data["info"].(map[string]string)
 
                 switch msg["req"] {
                     case "login":
-                        if login() != nil {
+                        if login(msg, conn) != nil {
                             // returning messages
                             m := make(map[string]interface{})
 							m["status"] = "r"
 							m["status_code"] = 20
-							m["info"] = make(map[string]string)
-							m["info"]["error"] = "Invalid username or password"
+                            mdata := make(map[string]string)
+							mdata["error"] = "Invalid username or password"
+							m["info"] = mdata
 							reply, err := json.Marshal(m)
 							_, err = conn.Write(reply)
 							if err != nil {
@@ -91,54 +94,45 @@ func comm(conn net.Conn, m chan message) {
 					// Query online users, should firstly verify sessions
                     // Following all operations should carry a session id
 					case "users":
-						if sessionId, hasSessionId := msg["sessionId"];
-                           uname, hasUserName := msg["uname"];
-						   hasSessionId && hasUserName {
+						if checkLogin(msg) {
 							ulist := getUsers()
 							m := make(map[string] interface{})
 							m["status"] = "r"
 							m["status_code"] = 30
-							m["info"] = make(map[string]string)
-							m["info"]["ulist"] = ulist
+							mdata := make(map[string] interface{})
+							mdata["ulist"] = ulist
+							m["info"] = mdata
 							reply, err := json.Marshal(m)
-							_, err = conn.WRite(reply)
+							_, err = conn.Write(reply)
 							if err != nil {
 								log.Fatal(err)
 							}
 						} else {
+							m := make(map[string] interface{})
 							m["status"] = "e"
 							m["status_code"] = 40
-							m["info"] = make(map[string]string)
-							m["info"]["error"] = "Invalid username or sessionid"
+							mdata := make(map[string]string)
+							mdata["error"] = "Invalid username or sessionid"
+							m["info"] = mdata
 							reply, err := json.Marshal(m)
-							_, err = conn.WRite(reply)
+							_, err = conn.Write(reply)
 							if err != nil {
 								log.Fatal(err)
 							}
 							return
 						}
-					case "message":
-						if sessionId, hasSessionId := msg["sessionId"];
-                           uname, hasUserName := msg["uname"];
-						   hasSessionId && hasUserName {
-
-						} else {
-
-						}
 					case "logout":
-						if sessionId, hasSessionId := msg["sessionId"];
-                           uname, hasUserName := msg["uname"];
-						   hasSessionId && hasUserName {
+						if checkLogin(msg) {
 
 						} else {
 
 						}
+
+					default:
+						return
 
                 }
 
-		        } else {
-				    // Fail to login
-	            }
             case "m":
 			    // sending messages
                 // firstly we will check whether arrivable
@@ -213,5 +207,18 @@ func login(msg map[string] string, conn net.Conn) error {
 }
 
 func logout(msg map[string] string, conn net.Conn ) error {
+	return nil
 }
 
+
+func checkLogin(msg map[string] string) bool {
+
+    uname, hasUserName := msg["uname"];
+	sessionId, hasSessionId := msg["sessionId"];
+
+	if hasSessionId && hasUserName {
+		return checkAlive(uname, sessionId)
+	} else {
+		return false
+	}
+}

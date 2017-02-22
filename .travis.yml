@@ -1,0 +1,10 @@
+language: go
+
+go:
+    - 1.7
+
+#nstall:
+#   - export GOPATH=`pwd`
+#   - go get github.com/mattn/go-sqlite3
+
+script: build.sh 

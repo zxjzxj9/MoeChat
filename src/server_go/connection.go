@@ -122,8 +122,8 @@ func comm(conn net.Conn, msgQueue chan message) {
 							return
 						}
 					case "logout":
-						if checkLogin(msg, conn) {
-							if err := logout(); err != nil {
+						if checkLogin(msg) {
+							if err := logout(msg, conn); err != nil {
 								log.Fatal(err)
 							}
 							return

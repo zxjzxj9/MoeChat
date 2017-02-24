@@ -211,7 +211,14 @@ func login(msg map[string] string, conn net.Conn) error {
 }
 
 func logout(msg map[string] string, conn net.Conn ) error {
-	return nil
+	uname, hasUserName := msg["uname"];
+	sessionId, hasSessionId := msg["sessionId"];
+
+	if hasSessionId && hasUserName {
+		return killOnline(uname, sessionId)
+	} else {
+		return errors.New("No such user!")
+	}
 }
 
 

@@ -156,3 +156,16 @@ func getUsers() []string {
     }
     return ret
 }
+
+func killOnline(uname, sessionId string) error {
+
+	db, err := sql.Open("sqlite3","./user.db")
+	_, err = db.Exec(" UPDATE user SET sid = null WHERE uname = ? AND sid = ?", uname, sessionId)
+	defer db.Close()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return err
+}

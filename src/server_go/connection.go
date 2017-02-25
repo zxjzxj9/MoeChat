@@ -49,6 +49,12 @@ func runServer(addr string, port int) error {
     return nil
 }
 
+// This function run the port to send message from server to client
+// Client is responsible to maintain this link
+func runClient(addr string) error {
+
+}
+
 // communicate with the client, main logic
 func comm(conn net.Conn, msgQueue chan message) {
     // First send connection message
@@ -141,7 +147,8 @@ func comm(conn net.Conn, msgQueue chan message) {
 			    // sending messages
                 // firstly we will check whether arrivable
             default:
-			// return error, and exit
+			    // return error, and exit
+				return
 	     }
     }
 }
@@ -175,7 +182,13 @@ func randSeq(n int) string {
 func login(msg map[string] string, conn net.Conn) error {
     user := msg["user"]
     passwd := msg["passwd"]
+
     // Call the database function to validater user passwd
+	if checkLogin(user) {
+		log.Fatal("User is already online")
+		return errors.New("User is already online...")
+	}
+
     if validate(user, passwd) {
         // Sending the secondary port of server
         m := make(map[string]interface{})
@@ -188,6 +201,7 @@ func login(msg map[string] string, conn net.Conn) error {
         infomap["session"] = randSeq(sessLen)
         // Marshal the map
         reply, err := json.Marshal(m)
+
         // Register and activate the user session
         if err = activate(user, infomap["session"]); err != nil {
             log.Fatal(err)
@@ -202,6 +216,7 @@ func login(msg map[string] string, conn net.Conn) error {
             log.Fatal(err)
             return err
         }
+
         return nil
     } else {
         ret := errors.New("Cannot validate user!")
@@ -233,3 +248,4 @@ func checkLogin(msg map[string] string) bool {
 		return false
 	}
 }
+

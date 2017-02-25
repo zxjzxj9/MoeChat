@@ -118,9 +118,16 @@ func checkAlive(user, sessionId string) bool {
     datetime := time.Now().UTC()
 	db, err := sql.Open("sqlite3","./user.db")
 	var s time.Time
-    err = db.QueryRow(" SELECT last_check FROM user " +
-                      " WHERE uname = ? "      +
-                      " AND   sid = ?  ; ", user, sessionId).Scan(&s)
+
+	if sessionId == "" {
+		// Check the current user alive
+		err = db.QueryRow(" SELECT last_check FROM user " +
+			              " WHERE uname = ? ;", user).Scan(&s)
+	} else {
+		err = db.QueryRow(" SELECT last_check FROM user " +
+			              " WHERE uname = ? "      +
+				          " AND   sid = ?  ; ", user, sessionId).Scan(&s)
+	}
     defer db.Close()
     if err != nil {
         log.Fatal(err)

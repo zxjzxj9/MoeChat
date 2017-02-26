@@ -52,7 +52,7 @@ func runServer(addr string, port int) error {
 // This function run the port to send message from server to client
 // Client is responsible to maintain this link
 func runClient(addr string) error {
-
+	return nil
 }
 
 // communicate with the client, main logic
@@ -184,7 +184,7 @@ func login(msg map[string] string, conn net.Conn) error {
     passwd := msg["passwd"]
 
     // Call the database function to validater user passwd
-	if checkLogin(user) {
+	if checkLogin(msg) {
 		log.Fatal("User is already online")
 		return errors.New("User is already online...")
 	}

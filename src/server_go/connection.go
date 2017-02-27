@@ -36,7 +36,7 @@ func runServer(addr string, port int) error {
 	defer lstn.Close()
 
 	m := make(chan message)
-	go runClient(m)
+	go runClient(addr, m)
 
 	for {
 		conn, err := lstn.Accept()
@@ -51,8 +51,33 @@ func runServer(addr string, port int) error {
 }
 
 // Open client thread server --> client
-func runClient(m chan message) {
+func runClient(addr string, m chan message) {
+    lstn, err := net.Listen("tcp", fmt.Sprintf("%s:%d", addr, SECONDARY_PORT))
+
+    if err != nil {
+        log.Fatal(err)
+        return
+    }
+
+    defer lstn.Close()
+
+    for {
+        conn, err := lstn.Accept()
+        log.Println("Incoming connection from:", conn.RemoteAddr())
+        if err != nil {
+            log.Fatal(err)
+            return
+        }
+        go checkStatus(conn, m)
+        defer conn.Close()
+    }
+
 	return
+}
+
+// Listen the heartbeat of client and communicate
+func checkStatus(conn net.Conn, m chan message) {
+    return
 }
 
 // communicate with the client, main logic

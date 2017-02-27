@@ -1,10 +1,12 @@
 package main
 
 import "os"
+
 //import "sys"
 import "log"
 import "flag"
 import "fmt"
+
 //import "strconv"
 
 // Entry point to start the server
@@ -26,7 +28,7 @@ func main() {
 	if *lserv {
 		fmt.Printf("Server will run on %s, port %d\n", *addr, *port)
 		err := runServer(*addr, *port)
-        if err != nil {
+		if err != nil {
 			log.Fatal("Server error! " + err.Error())
 			os.Exit(-1)
 		}

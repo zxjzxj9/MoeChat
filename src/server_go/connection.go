@@ -10,6 +10,8 @@ import "errors"
 import "math/rand"
 import "io/ioutil"
 import "encoding/json"
+import "time"
+import "sync"
 
 const (
 	MAX_BUFF_LEN   = 1024
@@ -23,6 +25,8 @@ const (
 type message struct {
 	src  string
 	dest string
+    state string
+    timeStamp time.Time
 	err  error
 }
 
@@ -71,13 +75,56 @@ func runClient(addr string, m chan message) {
         go checkStatus(conn, m)
         defer conn.Close()
     }
-
-	return
 }
 
 // Listen the heartbeat of client and communicate
 func checkStatus(conn net.Conn, m chan message) {
-    return
+    // Receive the connection message from the client
+    recvbyte, err := ioutil.ReadAll(conn)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	defer conn.Close()
+
+	var data map[string]interface{}
+	err = json.Unmarshal(recvbyte, data)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+    infomap := data["info"].(map[string]string)
+    session, hasSession := infomap["session"]
+    user, hasUser := infomap["user"]
+
+    if !hasSession {
+        log.Fatal("No session id, exit.")
+        return
+    }
+
+    if !hasUser {
+        log.Fatal("No username, exit.")
+        return
+    }
+
+    if !checkAlive(user, session) {
+        log.Fatal("Session not alive, exit.")
+        return
+    }
+
+    mt := &sync.Mutex{}
+    cond := sync.NewCond(mt)
+
+    // Openning loop, for the message and heartbeat
+    for {
+        mt.Lock()
+        //go handleMsg(m)
+        cond.Wait()
+        mt.Unlock()
+    }
+
 }
 
 // communicate with the client, main logic
@@ -91,7 +138,7 @@ func comm(conn net.Conn, msgQueue chan message) {
 			return
 		}
 
-		defer conn.Close()
+        defer conn.Close()
 
 		var data map[string]interface{}
 		err = json.Unmarshal(recvbyte, data)
@@ -176,10 +223,6 @@ func comm(conn net.Conn, msgQueue chan message) {
 			return
 		}
 	}
-}
-
-func comm2(conn net.Conn, m chan message) {
-
 }
 
 func cleaner(m chan message) {

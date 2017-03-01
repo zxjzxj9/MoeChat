@@ -115,16 +115,31 @@ func checkStatus(conn net.Conn, m chan message) {
     }
 
     mt := &sync.Mutex{}
-    cond := sync.NewCond(mt)
 
     // Openning loop, for the message and heartbeat
+	go sendHeartBeat(conn net.Conn, mt *sync.Mutex)
+	var msg message
+
     for {
         mt.Lock()
-        //go handleMsg(m)
-        cond.Wait()
+		msg = <-m
+
+		if msg.dest != user {
+			m <- msg
+		} else {
+			// shall somehow trigger the exit mechanism
+		}
+
         mt.Unlock()
     }
 
+}
+
+// Function to send HeartBeat for som time
+func sendHeartBeat(conn net.Conn, mt *sync.Mutex){
+	mt.Lock()
+    mt.Unlock()
+	return
 }
 
 // communicate with the client, main logic

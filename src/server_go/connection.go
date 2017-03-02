@@ -117,7 +117,7 @@ func checkStatus(conn net.Conn, m chan message) {
     mt := &sync.Mutex{}
 
     // Openning loop, for the message and heartbeat
-	go sendHeartBeat(conn net.Conn, mt *sync.Mutex)
+	go sendHeartBeat(conn, mt)
 	var msg message
 
     for {
@@ -137,8 +137,34 @@ func checkStatus(conn net.Conn, m chan message) {
 
 // Function to send HeartBeat for som time
 func sendHeartBeat(conn net.Conn, mt *sync.Mutex){
-	mt.Lock()
-    mt.Unlock()
+	//var err error
+
+	for {
+		time.Sleep(10 * time.Minute)
+		mt.Lock()
+
+		var msg map[string]interface{}
+		msg["status"] = "q"
+		var info map[string]string
+		info["info"] = "heartbeat"
+		msg["info"] = info
+		query, err := json.Marshal(msg)
+
+		if err != nil {
+			log.Fatal(err)
+			mt.Unlock()
+			return
+		}
+
+		_, err = conn.Write(query)
+		if err != nil {
+			log.Fatal(err)
+			mt.Unlock()
+			return
+		}
+
+		mt.Unlock()
+	}
 	return
 }
 

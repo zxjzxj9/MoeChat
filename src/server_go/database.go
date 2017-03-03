@@ -113,6 +113,20 @@ func activate(user, session string) error {
 	return err
 }
 
+// touch the user status
+func touchUser(user string) error {
+	datetime := time.Now().UTC()
+	db, err := sql.Open("sqlite3", "./user.db")
+	_, err = db.Exec(" UPDATE user SET last_check = ? WHERE uname = ?;",  datetime.Format(time.RFC3339), user)
+	defer db.Close()
+
+    if err != nil {
+        log.Fatal(err)
+    }
+    return err
+}
+
+
 // Check whether the client is still online
 func checkAlive(user, sessionId string) bool {
 	datetime := time.Now().UTC()

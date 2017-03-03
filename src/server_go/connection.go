@@ -117,7 +117,7 @@ func checkStatus(conn net.Conn, m chan message) {
     mt := &sync.Mutex{}
 
     // Openning loop, for the message and heartbeat
-	go sendHeartBeat(conn, mt)
+	go sendHeartBeat(user, conn, mt)
 	var msg message
 
     for {
@@ -136,7 +136,7 @@ func checkStatus(conn net.Conn, m chan message) {
 }
 
 // Function to send HeartBeat for som time
-func sendHeartBeat(conn net.Conn, mt *sync.Mutex){
+func sendHeartBeat(user string, conn net.Conn, mt *sync.Mutex){
 	//var err error
 
 	for {
@@ -163,6 +163,18 @@ func sendHeartBeat(conn net.Conn, mt *sync.Mutex){
 			return
 		}
 
+		recvbyte, err := ioutil.ReadAll(conn)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		err = json.Unmarshal(recvbyte, msg)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		touchUser(user)
 		mt.Unlock()
 	}
 	return

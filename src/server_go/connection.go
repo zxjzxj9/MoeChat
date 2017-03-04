@@ -26,6 +26,7 @@ type message struct {
 	src  string
 	dest string
     state string
+	msg string
     timeStamp time.Time
 	err  error
 }
@@ -128,6 +129,24 @@ func checkStatus(conn net.Conn, m chan message) {
 			m <- msg
 		} else {
 			// shall somehow trigger the exit mechanism
+			if (msg.state =="exit") {
+				log.Print("message triggered exit")
+				mt.Unlock()
+				return
+			} else {
+		        var reply map[string]interface{}
+		        reply["status"] = "m"
+				var info map[string]string
+				reply["info"] = info
+				info["msg"] = msg.msg
+				replydata, err := json.Marshal(reply)
+				_, err = conn.Write(replydata)
+				if err != nil {
+		            log.Fatal(err)
+				    mt.Unlock()
+					return
+			    }
+			}
 		}
 
         mt.Unlock()

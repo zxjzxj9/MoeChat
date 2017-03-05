@@ -290,6 +290,19 @@ func comm(conn net.Conn, msgQueue chan message) {
 		case "m":
 			// sending messages
 			// firstly we will check whether arrivable
+			msg := data["info"].(map[string]string)
+
+			channelMsg := message {
+				src: msg["user"],
+				dest: msg["dest"],
+				state: "send",
+				msg: msg["msg"],
+				timeStamp: time.Now(),
+				err: nil,
+			}
+
+			msgQueue <- channelMsg
+
 		default:
 			// return error, and exit
 			return
